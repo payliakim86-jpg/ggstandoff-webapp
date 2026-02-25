@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GGStandoff WebApp</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--tg-theme-bg-color, #1a1a2e);
+            color: var(--tg-theme-text-color, #ffffff);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: var(--tg-theme-button-color, #e94560);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 24px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .menu-item {
+            background-color: var(--tg-theme-secondary-bg-color, #16213e);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 8px;
+            color: var(--tg-theme-text-color, #ffffff);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.1s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-item:active {
+            transform: scale(0.97);
+            opacity: 0.8;
+        }
+
+        .menu-item span {
+            font-size: 24px;
+        }
+
+        .content-card {
+            background-color: var(--tg-theme-secondary-bg-color, #16213e);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            background-color: var(--tg-theme-button-color, #e94560);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .balance-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(0,0,0,0.3);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .balance-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #e94560);
+        }
+
+        .case-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .case-item {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .case-item:active {
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .case-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .case-price {
+            color: var(--tg-theme-hint-color, #a0a0a0);
+            font-size: 14px;
+        }
+
+        .case-description {
+            font-size: 13px;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .count-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .count-btn {
+            background-color: var(--tg-theme-bg-color, #0f3460);
+            color: var(--tg-theme-text-color, #ffffff);
+            border: 1px solid var(--tg-theme-button-color, #e94560);
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            flex: 1 0 auto;
+            min-width: 70px;
+        }
+
+        .count-btn.selected {
+            background-color: var(--tg-theme-button-color, #e94560);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border-color: var(--tg-theme-button-color, #e94560);
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .inventory-item {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .inventory-item .rarity {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .inventory-item .name {
+            font-weight: 500;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .inventory-item .price {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #a0a0a0);
+            margin-top: 4px;
+        }
+
+        .sell-btn {
+            background-color: var(--tg-theme-button-color, #e94560);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--tg-theme-secondary-bg-color, #16213e);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .result-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <!-- Головний екран -->
+        <div id="mainScreen">
+            <h1>GGStandoff</h1>
+            <div class="subtitle">Ваш ігровий помічник</div>
+
+            <div class="balance-info" id="balanceInfo">
+                <span>💰 Баланс:</span>
+                <span class="balance-amount" id="balanceAmount">0</span>
+            </div>
+
+            <div class="menu-grid">
+                <button class="menu-item" onclick="showCases()">
+                    <span>📦</span> Кейси
+                </button>
+                <button class="menu-item" onclick="showInventory()">
+                    <span>🎒</span> Інвентар
+                </button>
+                <button class="menu-item" onclick="showProfile()">
+                    <span>👤</span> Профіль
+                </button>
+                <button class="menu-item" onclick="showMarket()">
+                    <span>🏪</span> Маркет
+                </button>
+                <button class="menu-item" onclick="showDuels()">
+                    <span>⚔️</span> Дуелі
+                </button>
+                <button class="menu-item" onclick="showTournament()">
+                    <span>🏆</span> Турнір
+                </button>
+            </div>
+        </div>
+
+        <!-- Екран кейсів -->
+        <div id="casesScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>📦 Кейси</h2>
+                <div id="casesList" class="case-list"></div>
+            </div>
+        </div>
+
+        <!-- Екран вибору кількості для конкретного кейсу -->
+        <div id="caseDetailScreen" class="hidden">
+            <button class="back-button" onclick="showCases()">◀️ До списку</button>
+            <div class="content-card">
+                <h2 id="caseDetailName"></h2>
+                <p id="caseDetailDesc"></p>
+                <div class="balance-info" style="margin-top: 16px;">
+                    <span>💰 Ваш баланс:</span>
+                    <span class="balance-amount" id="caseDetailBalance">0</span>
+                </div>
+                <div class="count-selector" id="countSelector"></div>
+                <button class="back-button" id="openCaseBtn" onclick="openCase()" style="margin-top: 0;">🔓 Відкрити</button>
+            </div>
+        </div>
+
+        <!-- Екран результатів відкриття -->
+        <div id="resultScreen" class="hidden">
+            <button class="back-button" onclick="goBackToCases()">◀️ Продовжити</button>
+            <div class="content-card">
+                <h2>🎉 Результати</h2>
+                <div id="resultsList"></div>
+                <div class="balance-info" style="margin-top: 16px;">
+                    <span>💰 Новий баланс:</span>
+                    <span class="balance-amount" id="newBalanceResult">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Екран інвентаря -->
+        <div id="inventoryScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>🎒 Інвентар</h2>
+                <button class="back-button" onclick="sellAllInventory()" style="margin: 10px 0; background-color: #ff9800;">💰 Продати всі</button>
+                <div id="inventoryList" class="inventory-grid"></div>
+            </div>
+        </div>
+
+        <!-- Екран профілю -->
+        <div id="profileScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>👤 Профіль</h2>
+                <div id="profileInfo"></div>
+            </div>
+        </div>
+
+        <!-- Екран маркету (заглушка) -->
+        <div id="marketScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>🏪 Маркет</h2>
+                <p>Розділ у розробці. Незабаром тут з'явиться можливість купувати та продавати скіни.</p>
+            </div>
+        </div>
+
+        <!-- Екран дуелей (заглушка) -->
+        <div id="duelsScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>⚔️ Дуелі</h2>
+                <p>Розділ у розробці. Скоро ви зможете битися з іншими гравцями!</p>
+            </div>
+        </div>
+
+        <!-- Екран турніру (заглушка) -->
+        <div id="tournamentScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>🏆 Турнір</h2>
+                <p>Розділ у розробці. Слідкуйте за анонсами!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== НАЛАШТУВАННЯ ====================
+        const API_BASE_URL = 'https://your-server.com/api'; // ⚠️ ЗАМІНІТЬ НА АДРЕСУ ВАШОГО СЕРВЕРА
+
+        // Глобальні змінні
+        let tg = window.Telegram.WebApp;
+        let userId = tg.initDataUnsafe.user?.id;
+        let userData = null;
+        let currentCaseKey = null;
+        let selectedCount = 1;
+        let casesData = []; // буде завантажено з сервера або з конфігу
+
+        // Ініціалізація
+        tg.expand();
+        tg.ready();
+
+        // Якщо userId не визначено (наприклад, при тестуванні в браузері)
+        if (!userId) {
+            userId = prompt("Введіть ваш Telegram ID для тестування:", "123456789");
+        }
+
+        // Завантаження початкових даних
+        loadProfile();
+
+        // ==================== ФУНКЦІЇ API ====================
+        async function apiCall(endpoint, data = {}) {
+            data.user_id = userId;
+            try {
+                const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                return { success: false, message: 'Помилка з'єднання з сервером' };
+            }
+        }
+
+        // ==================== ЗАВАНТАЖЕННЯ ПРОФІЛЮ ====================
+        async function loadProfile() {
+            const data = await apiCall('profile');
+            if (data.success) {
+                userData = data.profile;
+                updateBalanceDisplay(userData.balance);
+                // Тут можна також завантажити кейси (вони можуть бути з config)
+                loadCasesFromConfig(); // або з API, якщо є такий ендпоінт
+            } else {
+                showNotification('Не вдалося завантажити профіль');
+            }
+        }
+
+        function updateBalanceDisplay(balance) {
+            document.getElementById('balanceAmount').innerText = balance;
+            document.getElementById('caseDetailBalance').innerText = balance;
+        }
+
+        // ==================== ЗАВАНТАЖЕННЯ КЕЙСІВ (з конфігу) ====================
+        function loadCasesFromConfig() {
+            // Тут ми імітуємо дані з config.py
+            // В реальності краще завантажувати з API
+            casesData = [
+                { key: "Standard Case", name: "⚪ Стандартний кейс", price: 100, description: "Базовий кейс зі звичайними та рідкісними скінами" },
+                { key: "Premium Case", name: "🔵 Преміум кейс", price: 500, description: "Кейс з вищими шансами на епічні скіни" },
+                { key: "Elite Case", name: "🟣 Елітний кейс", price: 1000, description: "Ексклюзивний кейс з можливістю вибити легендарні скіни" },
+                { key: "Ultimate Case", name: "🟠 Ультимат кейс", price: 2500, description: "Найкращий кейс з шансом на арканні скіни!" }
+            ];
+            renderCasesList();
+        }
+
+        // ==================== ВІДОБРАЖЕННЯ КЕЙСІВ ====================
+        function renderCasesList() {
+            const container = document.getElementById('casesList');
+            let html = '';
+            casesData.forEach(c => {
+                html += `
+                    <div class="case-item" onclick="selectCase('${c.key}')">
+                        <div class="case-name">${c.name}</div>
+                        <div class="case-price">💰 ${c.price} монет</div>
+                        <div class="case-description">${c.description}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectCase(caseKey) {
+            currentCaseKey = caseKey;
+            const caseData = casesData.find(c => c.key === caseKey);
+            document.getElementById('caseDetailName').innerText = caseData.name;
+            document.getElementById('caseDetailDesc').innerText = caseData.description;
+
+            // Створюємо кнопки вибору кількості
+            const counts = [1, 2, 5, 10];
+            let buttonsHtml = '';
+            counts.forEach(count => {
+                buttonsHtml += `<button class="count-btn ${count === 1 ? 'selected' : ''}" onclick="selectCount(${count})">${count}</button>`;
+            });
+            document.getElementById('countSelector').innerHTML = buttonsHtml;
+            selectedCount = 1;
+
+            // Показуємо екран деталей
+            hideAllScreens();
+            document.getElementById('caseDetailScreen').classList.remove('hidden');
+        }
+
+        function selectCount(count) {
+            selectedCount = count;
+            document.querySelectorAll('.count-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.innerText == count) btn.classList.add('selected');
+            });
+        }
+
+        // ==================== ВІДКРИТТЯ КЕЙСУ ====================
+        async function openCase() {
+            const caseData = casesData.find(c => c.key === currentCaseKey);
+            if (!caseData) return;
+
+            document.getElementById('openCaseBtn').disabled = true;
+            document.getElementById('openCaseBtn').innerText = '⏳ Відкриття...';
+
+            const result = await apiCall('open_case', {
+                case_key: currentCaseKey,
+                count: selectedCount
+            });
+
+            document.getElementById('openCaseBtn').disabled = false;
+            document.getElementById('openCaseBtn').innerText = '🔓 Відкрити';
+
+            if (result.success) {
+                // Оновлюємо баланс
+                if (result.new_balance !== undefined) {
+                    updateBalanceDisplay(result.new_balance);
+                }
+                // Показуємо результати
+                showResults(result.results, result.total_cost, result.new_balance);
+            } else {
+                alert(result.message || 'Помилка відкриття кейсу');
+            }
+        }
+
+        function showResults(results, totalCost, newBalance) {
+            let html = '';
+            results.forEach((r, index) => {
+                html += `
+                    <div class="result-item">
+                        <div style="font-size: 24px;">${r.emoji}</div>
+                        <div><strong>${r.skin_name}</strong> (${r.rarity})</div>
+                        <div>🆔 ${r.skin_id} | 💰 продаж: ${r.sell_price}</div>
+                    </div>
+                `;
+            });
+            document.getElementById('resultsList').innerHTML = html;
+            document.getElementById('newBalanceResult').innerText = newBalance || '?';
+
+            hideAllScreens();
+            document.getElementById('resultScreen').classList.remove('hidden');
+        }
+
+        // ==================== ІНВЕНТАР ====================
+        async function showInventory() {
+            hideAllScreens();
+            document.getElementById('inventoryScreen').classList.remove('hidden');
+            document.getElementById('inventoryList').innerHTML = '<div class="loading">Завантаження...</div>';
+
+            const data = await apiCall('get_inventory');
+            if (data.success) {
+                renderInventory(data.inventory);
+            } else {
+                document.getElementById('inventoryList').innerHTML = '<p>Помилка завантаження інвентаря</p>';
+            }
+        }
+
+        function renderInventory(items) {
+            const container = document.getElementById('inventoryList');
+            if (items.length === 0) {
+                container.innerHTML = '<p>Інвентар порожній</p>';
+                return;
+            }
+            let html = '';
+            items.forEach(item => {
+                html += `
+                    <div class="inventory-item">
+                        <div class="rarity">${item.emoji}</div>
+                        <div class="name">${item.skin_name}</div>
+                        <div class="price">💰 ${item.sell_price}</div>
+                        <button class="sell-btn" onclick="sellSkin(${item.id})">Продати</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        async function sellSkin(skinId) {
+            if (!confirm('Продати цей скін?')) return;
+            const result = await apiCall('sell_skin', { skin_id: skinId });
+            if (result.success) {
+                alert(result.message);
+                updateBalanceDisplay(result.new_balance);
+                showInventory(); // оновити список
+            } else {
+                alert(result.message);
+            }
+        }
+
+        async function sellAllInventory() {
+            if (!confirm('Продати ВСІ скіни з інвентаря? Цю дію неможливо скасувати.')) return;
+            const result = await apiCall('sell_all');
+            if (result.success) {
+                alert(result.message);
+                updateBalanceDisplay(result.total);
+                showInventory();
+            } else {
+                alert(result.message);
+            }
+        }
+
+        // ==================== ПРОФІЛЬ ====================
+        async function showProfile() {
+            hideAllScreens();
+            document.getElementById('profileScreen').classList.remove('hidden');
+            document.getElementById('profileInfo').innerHTML = '<div class="loading">Завантаження...</div>';
+
+            const data = await apiCall('profile');
+            if (data.success) {
+                const p = data.profile;
+                let html = `
+                    <p><strong>ID:</strong> ${p.user_id}</p>
+                    <p><strong>Username:</strong> @${p.username || 'немає'}</p>
+                    <p><strong>Баланс:</strong> ${p.balance} монет</p>
+                    <p><strong>Рівень:</strong> ${p.level} (XP: ${p.xp}/100)</p>
+                    <p><strong>Знижка:</strong> ${p.discount}%</p>
+                    <p><strong>Відкрито кейсів:</strong> ${p.cases_opened}</p>
+                `;
+                if (p.most_expensive_skin) {
+                    html += `<p><strong>Найдорожчий скін:</strong> ${p.most_expensive_skin.skin_name} (${p.most_expensive_skin.rarity}) - ${p.most_expensive_skin.case_price} монет</p>`;
+                }
+                document.getElementById('profileInfo').innerHTML = html;
+            } else {
+                document.getElementById('profileInfo').innerHTML = '<p>Помилка завантаження профілю</p>';
+            }
+        }
+
+        // ==================== МАРКЕТ, ДУЕЛІ, ТУРНІР (заглушки) ====================
+        function showMarket() {
+            hideAllScreens();
+            document.getElementById('marketScreen').classList.remove('hidden');
+        }
+
+        function showDuels() {
+            hideAllScreens();
+            document.getElementById('duelsScreen').classList.remove('hidden');
+        }
+
+        function showTournament() {
+            hideAllScreens();
+            document.getElementById('tournamentScreen').classList.remove('hidden');
+        }
+
+        // ==================== КЕЙСИ (головний екран) ====================
+        function showCases() {
+            hideAllScreens();
+            document.getElementById('casesScreen').classList.remove('hidden');
+        }
+
+        // ==================== НАВІГАЦІЯ ====================
+        function goBack() {
+            hideAllScreens();
+            document.getElementById('mainScreen').classList.remove('hidden');
+        }
+
+        function goBackToCases() {
+            hideAllScreens();
+            document.getElementById('casesScreen').classList.remove('hidden');
+        }
+
+        function hideAllScreens() {
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('casesScreen').classList.add('hidden');
+            document.getElementById('caseDetailScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('inventoryScreen').classList.add('hidden');
+            document.getElementById('profileScreen').classList.add('hidden');
+            document.getElementById('marketScreen').classList.add('hidden');
+            document.getElementById('duelsScreen').classList.add('hidden');
+            document.getElementById('tournamentScreen').classList.add('hidden');
+        }
+
+        // Допоміжна функція
+        function showNotification(msg) {
+            alert(msg); // Тут можна замінити на красиве сповіщення
+        }
+    </script>
+</body>
+</html>
