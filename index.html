@@ -6,18 +6,499 @@
     <title>GGStandoff WebApp</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* тут ваші стилі (залиште як є) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Привітання */
+        .welcome-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .welcome-text {
+            color: #a0a0a0;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Баланс */
+        .balance-card {
+            background: rgba(233, 69, 96, 0.1);
+            border: 1px solid #e94560;
+            border-radius: 20px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            backdrop-filter: blur(5px);
+            animation: slideUp 0.5s ease;
+        }
+
+        .balance-label {
+            font-size: 16px;
+            color: #a0a0a0;
+        }
+
+        .balance-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e94560;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+
+        /* Меню */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .menu-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            animation: fadeInUp 0.5s ease;
+            animation-fill-mode: both;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            background: rgba(233, 69, 96, 0.2);
+            border-color: #e94560;
+            box-shadow: 0 10px 20px rgba(233, 69, 96, 0.3);
+        }
+
+        .menu-item span {
+            font-size: 32px;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
+        }
+
+        .menu-item .label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+
+        /* Загальні картки */
+        .content-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .back-button {
+            background: linear-gradient(45deg, #e94560, #ff6b6b);
+            border: none;
+            border-radius: 16px;
+            padding: 14px 20px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 16px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+
+        .back-button:hover {
+            transform: scale(0.98);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+        }
+
+        /* Кейси */
+        .case-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .case-item:hover {
+            border-color: #e94560;
+            transform: translateX(5px);
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .case-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .case-price {
+            color: #e94560;
+            font-size: 14px;
+        }
+
+        .case-description {
+            font-size: 13px;
+            color: #a0a0a0;
+            margin-top: 8px;
+        }
+
+        /* Вибір кількості */
+        .count-selector {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .count-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #e94560;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            flex: 1;
+            transition: all 0.3s ease;
+        }
+
+        .count-btn.selected {
+            background: #e94560;
+            border-color: #e94560;
+            box-shadow: 0 0 15px #e94560;
+        }
+
+        .count-btn:hover {
+            background: rgba(233, 69, 96, 0.3);
+        }
+
+        /* Анімація відкриття кейсу */
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        @keyframes cardFlip {
+            0% { opacity: 0; transform: perspective(400px) rotateY(90deg); }
+            100% { opacity: 1; transform: perspective(400px) rotateY(0); }
+        }
+
+        .case-opening-animation {
+            animation: spin 1s ease-in-out;
+        }
+
+        .result-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            animation: cardFlip 0.5s ease;
+            transition: transform 0.3s;
+        }
+
+        .result-item:hover {
+            transform: scale(1.02);
+            border-color: #e94560;
+        }
+
+        .result-emoji {
+            font-size: 48px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .result-rarity {
+            font-size: 14px;
+            color: #a0a0a0;
+        }
+
+        .result-price {
+            color: #e94560;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Інвентар */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .inventory-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .inventory-item:hover {
+            border-color: #e94560;
+            transform: translateY(-5px);
+            background: rgba(233, 69, 96, 0.1);
+        }
+
+        .inventory-rarity {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .inventory-name {
+            font-weight: 500;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        .inventory-price {
+            color: #e94560;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+
+        .sell-btn {
+            background: #e94560;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 13px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .sell-btn:hover {
+            background: #ff6b6b;
+            transform: scale(0.95);
+        }
+
+        /* Профіль */
+        .profile-info p {
+            margin: 12px 0;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        /* Анімації */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0a0a0;
+        }
     </style>
 </head>
 <body>
-    <!-- тут ваш HTML (залиште як є) -->
+    <div class="container" id="app">
+        <!-- Головний екран -->
+        <div id="mainScreen">
+            <div class="welcome-card">
+                <div class="welcome-title">Ласкаво просимо, <span id="username">Гравче</span>!</div>
+                <div class="welcome-text">
+                    🎮 GGStandoff Bot — це віртуальний світ скінів, кейсів та дуелей. 
+                    Відкривайте кейси, збирайте колекції, бийтеся з друзями та ставайте легендою!
+                </div>
+            </div>
+
+            <div class="balance-card">
+                <span class="balance-label">💰 Баланс</span>
+                <span class="balance-amount" id="balanceAmount">0</span>
+            </div>
+
+            <div class="menu-grid">
+                <div class="menu-item" onclick="showCases()" style="animation-delay: 0.1s;">
+                    <span>📦</span>
+                    <span class="label">Кейси</span>
+                </div>
+                <div class="menu-item" onclick="showInventory()" style="animation-delay: 0.2s;">
+                    <span>🎒</span>
+                    <span class="label">Інвентар</span>
+                </div>
+                <div class="menu-item" onclick="showProfile()" style="animation-delay: 0.3s;">
+                    <span>👤</span>
+                    <span class="label">Профіль</span>
+                </div>
+                <div class="menu-item" onclick="showMarket()" style="animation-delay: 0.4s;">
+                    <span>🏪</span>
+                    <span class="label">Маркет</span>
+                </div>
+                <div class="menu-item" onclick="showDuels()" style="animation-delay: 0.5s;">
+                    <span>⚔️</span>
+                    <span class="label">Дуелі</span>
+                </div>
+                <div class="menu-item" onclick="showTournament()" style="animation-delay: 0.6s;">
+                    <span>🏆</span>
+                    <span class="label">Турнір</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Екран кейсів -->
+        <div id="casesScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2 style="margin-bottom: 16px;">📦 Кейси</h2>
+                <div id="casesList" class="case-list"></div>
+            </div>
+        </div>
+
+        <!-- Деталі кейсу -->
+        <div id="caseDetailScreen" class="hidden">
+            <button class="back-button" onclick="showCases()">◀️ До списку</button>
+            <div class="content-card">
+                <h2 id="caseDetailName"></h2>
+                <p id="caseDetailDesc" style="color: #a0a0a0; margin: 8px 0;"></p>
+                <div class="balance-card" style="margin: 16px 0;">
+                    <span>💰 Ваш баланс:</span>
+                    <span class="balance-amount" id="caseDetailBalance">0</span>
+                </div>
+                <div class="count-selector" id="countSelector"></div>
+                <button class="back-button" id="openCaseBtn" onclick="openCase()" style="margin-top: 0;">🔓 Відкрити</button>
+            </div>
+        </div>
+
+        <!-- Результати відкриття -->
+        <div id="resultScreen" class="hidden">
+            <button class="back-button" onclick="goBackToCases()">◀️ Продовжити</button>
+            <div class="content-card">
+                <h2>🎉 Результати</h2>
+                <div id="resultsList" class="case-opening-animation"></div>
+                <div class="balance-card" style="margin-top: 16px;">
+                    <span>💰 Новий баланс:</span>
+                    <span class="balance-amount" id="newBalanceResult">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Інвентар -->
+        <div id="inventoryScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2 style="margin-bottom: 16px;">🎒 Інвентар</h2>
+                <button class="back-button" onclick="sellAllInventory()" style="background: #ff9800; margin: 10px 0;">💰 Продати всі</button>
+                <div id="inventoryList" class="inventory-grid"></div>
+            </div>
+        </div>
+
+        <!-- Профіль -->
+        <div id="profileScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2 style="margin-bottom: 16px;">👤 Профіль</h2>
+                <div id="profileInfo" class="profile-info"></div>
+            </div>
+        </div>
+
+        <!-- Маркет (заглушка) -->
+        <div id="marketScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>🏪 Маркет</h2>
+                <p style="color: #a0a0a0; text-align: center; margin-top: 20px;">Розділ у розробці. Незабаром тут з'явиться можливість купувати та продавати скіни.</p>
+            </div>
+        </div>
+
+        <!-- Дуелі (заглушка) -->
+        <div id="duelsScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>⚔️ Дуелі</h2>
+                <p style="color: #a0a0a0; text-align: center; margin-top: 20px;">Розділ у розробці. Скоро ви зможете битися з іншими гравцями!</p>
+            </div>
+        </div>
+
+        <!-- Турнір (заглушка) -->
+        <div id="tournamentScreen" class="hidden">
+            <button class="back-button" onclick="goBack()">◀️ Назад</button>
+            <div class="content-card">
+                <h2>🏆 Турнір</h2>
+                <p style="color: #a0a0a0; text-align: center; margin-top: 20px;">Розділ у розробці. Слідкуйте за анонсами!</p>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ==================== НАЛАШТУВАННЯ ====================
         // ⚠️ ВСТАВТЕ СЮДИ ВАШ URL ВІД NGROK
         const API_BASE_URL = 'https://cowardly-vibrionic-tamera.ngrok-free.dev/api';
 
-        // Глобальні змінні
         let tg = window.Telegram.WebApp;
         let userId = tg.initDataUnsafe.user?.id;
         let userData = null;
@@ -25,7 +506,6 @@
         let selectedCount = 1;
         let casesData = [];
 
-        // Ініціалізація
         tg.expand();
         tg.ready();
 
@@ -36,7 +516,6 @@
         // Завантаження початкових даних
         loadProfile();
 
-        // ==================== ФУНКЦІЇ API ====================
         async function apiCall(endpoint, data = {}) {
             data.user_id = userId;
             try {
@@ -48,15 +527,15 @@
                 return await response.json();
             } catch (error) {
                 console.error('API Error:', error);
-                return { success: false, message: 'Помилка з'єднання з сервером' };
+                return { success: false, message: 'Помилка з\'єднання з сервером' };
             }
         }
 
-        // ==================== ЗАВАНТАЖЕННЯ ПРОФІЛЮ ====================
         async function loadProfile() {
             const data = await apiCall('profile');
             if (data.success) {
                 userData = data.profile;
+                document.getElementById('username').innerText = userData.username || 'Гравче';
                 updateBalanceDisplay(userData.balance);
                 loadCasesFromConfig();
             } else {
@@ -69,7 +548,6 @@
             document.getElementById('caseDetailBalance').innerText = balance;
         }
 
-        // ==================== ЗАВАНТАЖЕННЯ КЕЙСІВ ====================
         function loadCasesFromConfig() {
             casesData = [
                 { key: "Standard Case", name: "⚪ Стандартний кейс", price: 100, description: "Базовий кейс зі звичайними та рідкісними скінами" },
@@ -80,7 +558,6 @@
             renderCasesList();
         }
 
-        // ==================== ВІДОБРАЖЕННЯ КЕЙСІВ ====================
         function renderCasesList() {
             const container = document.getElementById('casesList');
             let html = '';
@@ -122,7 +599,6 @@
             });
         }
 
-        // ==================== ВІДКРИТТЯ КЕЙСУ ====================
         async function openCase() {
             const caseData = casesData.find(c => c.key === currentCaseKey);
             if (!caseData) return;
@@ -152,10 +628,14 @@
             let html = '';
             results.forEach((r, index) => {
                 html += `
-                    <div class="result-item">
-                        <div style="font-size: 24px;">${r.emoji}</div>
-                        <div><strong>${r.skin_name}</strong> (${r.rarity})</div>
-                        <div>🆔 ${r.skin_id} | 💰 продаж: ${r.sell_price}</div>
+                    <div class="result-item" style="animation-delay: ${index * 0.1}s">
+                        <div class="result-emoji">${r.emoji}</div>
+                        <div class="result-info">
+                            <div class="result-name">${r.skin_name}</div>
+                            <div class="result-rarity">${r.rarity}</div>
+                            <div class="result-price">💰 ${r.sell_price} монет</div>
+                            <div style="font-size: 12px; color: #666;">ID: ${r.skin_id}</div>
+                        </div>
                     </div>
                 `;
             });
@@ -166,7 +646,6 @@
             document.getElementById('resultScreen').classList.remove('hidden');
         }
 
-        // ==================== ІНВЕНТАР ====================
         async function showInventory() {
             hideAllScreens();
             document.getElementById('inventoryScreen').classList.remove('hidden');
@@ -183,16 +662,16 @@
         function renderInventory(items) {
             const container = document.getElementById('inventoryList');
             if (items.length === 0) {
-                container.innerHTML = '<p>Інвентар порожній</p>';
+                container.innerHTML = '<p style="text-align: center; color: #a0a0a0;">Інвентар порожній</p>';
                 return;
             }
             let html = '';
             items.forEach(item => {
                 html += `
                     <div class="inventory-item">
-                        <div class="rarity">${item.emoji}</div>
-                        <div class="name">${item.skin_name}</div>
-                        <div class="price">💰 ${item.sell_price}</div>
+                        <div class="inventory-rarity">${item.emoji}</div>
+                        <div class="inventory-name">${item.skin_name}</div>
+                        <div class="inventory-price">💰 ${item.sell_price}</div>
                         <button class="sell-btn" onclick="sellSkin(${item.id})">Продати</button>
                     </div>
                 `;
@@ -224,7 +703,6 @@
             }
         }
 
-        // ==================== ПРОФІЛЬ ====================
         async function showProfile() {
             hideAllScreens();
             document.getElementById('profileScreen').classList.remove('hidden');
@@ -250,7 +728,6 @@
             }
         }
 
-        // ==================== МАРКЕТ, ДУЕЛІ, ТУРНІР ====================
         function showMarket() {
             hideAllScreens();
             document.getElementById('marketScreen').classList.remove('hidden');
@@ -271,7 +748,6 @@
             document.getElementById('casesScreen').classList.remove('hidden');
         }
 
-        // ==================== НАВІГАЦІЯ ====================
         function goBack() {
             hideAllScreens();
             document.getElementById('mainScreen').classList.remove('hidden');
@@ -299,6 +775,4 @@
         }
     </script>
 </body>
-</html>
-
 </html>
